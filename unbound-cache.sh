@@ -4,39 +4,26 @@
 CONF="/opt/unbound"
 FNAME="unbound.cache"
 
-# Unbound binaries
-UC=$(which unbound-control) || exit 7
-UCS=$(which unbound-control-setup) || exit 7
-
-# OS utilities
-BASENAME=$(which basename) || exit 6
-CAT=$(which cat) || exit 6
-CUT=$(which cut) || exit 6
-ECHO=$(which echo) || exit 6
-GETOPT=$(which getopt) || exit 6
-ID=$(which id) || exit 6
-XARGS=$(which xargs) || exit 6
-
 usage ()
 {
   # shellcheck disable=SC2086
-  $ECHO "Usage: $($BASENAME $0) [-s | -l | -r | -h] [filename]"
-  $ECHO ""
-  $ECHO "l - Load: Load Unbound DNS cache from file"
-  $ECHO "s - Save: Save Unbound DNS cache contents to plain file with domain names"
-  $ECHO "r - Reload: Saves the Unbound DNS cache, reloads the server, then loads the cache"
-  $ECHO "h - This screen"
-  $ECHO "filename - File to save/load dumped cache. If not specified, ${CONF}/${FNAME} will be used instead."
-  $ECHO "Note: Loads cache if no arguments are specified."
-  $ECHO "      Also, unbound-control must be configured."
+  echo "Usage: $(basename $0) [-s | -l | -r | -h] [filename]"
+  echo ""
+  echo "l - Load: Load Unbound DNS cache from file"
+  echo "s - Save: Save Unbound DNS cache contents to plain file with domain names"
+  echo "r - Reload: Saves the Unbound DNS cache, reloads the server, then loads the cache"
+  echo "h - This screen"
+  echo "filename - File to save/load dumped cache. If not specified, ${CONF}/${FNAME} will be used instead."
+  echo "Note: Loads cache if no arguments are specified."
+  echo "      Also, unbound-control must be configured."
   exit 0
 }
 
 root_check ()
 {
   # shellcheck disable=SC2046
-  if [ ! $($ID | $CUT -f1 -d" ") = "uid=0(root)" ]; then
-    $ECHO "ERROR: You must be super-user to run this script"
+  if [ ! $(id | cut -f1 -d" ") = "uid=0(root)" ]; then
+    echo "ERROR: You must be super-user to run this script"
     exit 1
   fi
 }
@@ -45,12 +32,12 @@ check_saved_file ()
 {
   filename=$1
   if [ -n "$filename" ] && [ ! -f "$filename" ]; then
-    $ECHO ""
-    $ECHO "ERROR: File $filename does not exist. Save it first."
+    echo ""
+    echo "ERROR: File $filename does not exist. Save it first."
     exit 3
   elif [ ! -f "${CONF}/${FNAME}" ]; then
-    $ECHO ""
-    $ECHO "ERROR: File ${CONF}/${FNAME} does not exist. Save it first."
+    echo ""
+    echo "ERROR: File ${CONF}/${FNAME} does not exist. Save it first."
     exit 4
   fi
 }
@@ -60,13 +47,13 @@ save_cache ()
   # Save unbound cache
   filename=$1
   if [ -z "$filename" ]; then
-    $ECHO "Saving cache to ${CONF}/${FNAME}"
-    $UC dump_cache > ${CONF}/${FNAME}
+    echo "Saving cache to ${CONF}/${FNAME}"
+    unbound-control dump_cache > ${CONF}/${FNAME}
   else
-    $ECHO "Saving cache to $filename"
-    $UC dump_cache > "$filename"
+    echo "Saving cache to $filename"
+    unbound-control dump_cache > "$filename"
   fi
-  $ECHO "ok"
+  echo "ok"
 }
 
 load_cache ()
@@ -74,13 +61,13 @@ load_cache ()
  # Load saved cache contents and warmup cache
  filename=$1
   if [ -z "$filename" ]; then
-    $ECHO "Loading cache from ${CONF}/${FNAME}"
+    echo "Loading cache from ${CONF}/${FNAME}"
     check_saved_file "$filename"
-    $CAT ${CONF}/${FNAME} | $UC load_cache
+    cat ${CONF}/${FNAME} | unbound-control load_cache
   else
-    $ECHO "Loading cache from $filename"
+    echo "Loading cache from $filename"
     check_saved_file "$filename"
-    $CAT "$filename" | $UC load_cache
+    cat "$filename" | unbound-control load_cache
   fi
 }
 
@@ -89,8 +76,8 @@ reload_cache ()
   # Reload and refresh existing cache and saved dump
   filename=$1
   save_cache "$filename"
-  $ECHO "Reloading unbound server"
-  $UC reload
+  echo "Reloading unbound server"
+  unbound-control reload
   load_cache "$filename"
 }
 
@@ -106,10 +93,10 @@ if [ "$*" = "" ]; then
 else
   # Parse command line
   # shellcheck disable=SC2046
-  set -- $($GETOPT --options sSlLrRhH --longoptions=save,load,reload,help -- "$arg_list") || exit 5
+  set -- $(getopt --options sSlLrRhH --longoptions=save,load,reload,help -- "$arg_list") || exit 5
 
   # Read arguments
-  for i in $($GETOPT --options :sSlLrRhH --longoptions=save,load,reload,help -- "$arg_list")
+  for i in $(getopt --options :sSlLrRhH --longoptions=save,load,reload,help -- "$arg_list")
     do
       case $i in
         -s | -S | --save) choice="save";;
@@ -119,10 +106,10 @@ else
         -- ) ;;
         *)
           if [ "$choice" = "" ]; then
-            $ECHO "ERROR: An argument must be preceded by a flag. See -h."
+            echo "ERROR: An argument must be preceded by a flag. See -h."
             exit 8
           else
-            file=$(echo "$i" | $XARGS)
+            file=$(echo "$i" | xargs)
             break
           fi;;
       esac
