@@ -5,3 +5,10 @@
 # Usage
 
 See `unbound-control -h`
+
+# Dependencies
+
+    - unbound
+    - coreutils
+    - util-linux
+    - findutils
