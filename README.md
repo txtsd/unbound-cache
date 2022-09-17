@@ -4,7 +4,7 @@
 
 # Usage
 
-See `unbound-control -h`
+See `unbound-cache -h`
 
 # Dependencies
 
