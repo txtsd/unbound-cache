@@ -63,11 +63,11 @@ load_cache ()
   if [ -z "$filename" ]; then
     echo "Loading cache from ${CONF}/${FNAME}"
     check_saved_file "$filename"
-    cat ${CONF}/${FNAME} | unbound-control load_cache
+    unbound-control load_cache < "${CONF}/${FNAME}"
   else
     echo "Loading cache from $filename"
     check_saved_file "$filename"
-    cat "$filename" | unbound-control load_cache
+    unbound-control load_cache < "$filename"
   fi
 }
 
