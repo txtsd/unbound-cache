@@ -22,8 +22,8 @@ usage ()
 root_check ()
 {
   # shellcheck disable=SC2046
-  if [ ! $(id | cut -f1 -d" ") = "uid=0(root)" ]; then
-    echo "ERROR: You must be super-user to run this script"
+  if [ ! $(id | cut -f2 -d"(" | cut -f1 -d")") = "root" ] || [ ! $(id | cut -f2 -d"(" | cut -f1 -d")") = "unbound" ]; then
+    echo "ERROR: You must be root (or unbound) to run this script"
     exit 1
   fi
 }
