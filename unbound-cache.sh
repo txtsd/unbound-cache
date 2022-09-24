@@ -22,7 +22,7 @@ usage ()
 root_check ()
 {
   # shellcheck disable=SC2046
-  if [ ! $(id | cut -f2 -d"(" | cut -f1 -d")") = "root" ] || [ ! $(id | cut -f2 -d"(" | cut -f1 -d")") = "unbound" ]; then
+  if [ ! $(id | cut -f2 -d"(" | cut -f1 -d")") = "root" ] && [ ! $(id | cut -f2 -d"(" | cut -f1 -d")") = "unbound" ]; then
     echo "ERROR: You must be root (or unbound) to run this script"
     exit 1
   fi
